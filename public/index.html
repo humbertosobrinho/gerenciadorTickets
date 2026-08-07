@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Helpdesk — Sistema de Gerenciamento de Tickets</title>
+  <meta name="description" content="Sistema web moderno para abertura, acompanhamento e resolução de chamados técnicos de suporte.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+  <!-- TOAST / NOTIFICAÇÃO -->
+  <div id="toast-container" class="toast-container"></div>
+
+  <!-- TELA DE LOGIN -->
+  <div id="view-login" class="view-screen active">
+    <div class="login-card">
+      <div class="brand-header">
+        <div class="brand-icon">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><path d="m9 15 2 2 4-4"/></svg>
+        </div>
+        <h1>Helpdesk Tickets</h1>
+        <p>Acesse o portal de suporte para gerenciar chamados</p>
+      </div>
+
+      <form id="form-login" class="auth-form">
+        <div class="form-group">
+          <label for="login-email">E-mail</label>
+          <input type="email" id="login-email" required placeholder="ex: admin@sistema.com" autocomplete="email">
+        </div>
+
+        <div class="form-group">
+          <label for="login-senha">Senha</label>
+          <input type="password" id="login-senha" required placeholder="Sua senha de acesso" autocomplete="current-password">
+        </div>
+
+        <button type="submit" id="btn-login-submit" class="btn btn-primary btn-block">
+          <span>Entrar no Sistema</span>
+        </button>
+      </form>
+
+      <div class="login-footer">
+        <p class="text-muted"><small>Credenciais de teste:<br>Admin: <strong>admin@sistema.com</strong> | Senha: <strong>admin123</strong></small></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- APLICAÇÃO PRINCIPAL (DASHBOARD) -->
+  <div id="view-app" class="view-screen">
+    <!-- BARRA NAVEGAÇÃO SUPERIOR -->
+    <header class="top-nav">
+      <div class="nav-container">
+        <div class="nav-brand">
+          <div class="brand-icon-sm">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/></svg>
+          </div>
+          <span class="brand-title">Helpdesk Tickets</span>
+        </div>
+
+        <div class="nav-user">
+          <div class="user-info">
+            <span id="user-display-name" class="user-name">Usuário</span>
+            <span id="user-display-badge" class="badge badge-user">Comum</span>
+          </div>
+          <button id="btn-logout" class="btn btn-outline-sm" title="Sair do sistema">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+            <span>Sair</span>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- CONTEÚDO PRINCIPAL -->
+    <main class="app-main">
+      <div class="content-container">
+
+        <!-- CABEÇALHO DA DASHBOARD -->
+        <div class="dashboard-header">
+          <div>
+            <h2 id="dashboard-title">Meus Chamados</h2>
+            <p id="dashboard-subtitle" class="text-muted">Acompanhe e gerencie solicitações de suporte</p>
+          </div>
+          <div class="dashboard-actions">
+            <button id="btn-tab-users" class="btn btn-secondary admin-only hide">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+              <span>Gerenciar Usuários</span>
+            </button>
+
+            <button id="btn-open-new-ticket" class="btn btn-primary">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              <span>Novo Ticket</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- SEÇÃO: FILTROS E PESQUISA -->
+        <div class="filter-card">
+          <div class="filter-grid">
+            <div class="filter-group">
+              <label for="filter-status">Status</label>
+              <select id="filter-status" class="form-control">
+                <option value="">Todos os status</option>
+                <option value="aberto">Aberto</option>
+                <option value="em_andamento">Em Andamento</option>
+                <option value="fechado">Fechado</option>
+              </select>
+            </div>
+
+            <div class="filter-group">
+              <label for="filter-tipo">Tipo</label>
+              <select id="filter-tipo" class="form-control">
+                <option value="">Todos os tipos</option>
+                <option value="hardware">Hardware</option>
+                <option value="software">Software</option>
+              </select>
+            </div>
+
+            <div class="filter-group admin-only hide">
+              <label for="filter-usuario">Solicitante</label>
+              <select id="filter-usuario" class="form-control">
+                <option value="">Todos os usuários</option>
+              </select>
+            </div>
+
+            <div class="filter-group">
+              <label for="filter-data-inicio">Data Início</label>
+              <input type="date" id="filter-data-inicio" class="form-control">
+            </div>
+
+            <div class="filter-group">
+              <label for="filter-data-fim">Data Fim</label>
+              <input type="date" id="filter-data-fim" class="form-control">
+            </div>
+
+            <div class="filter-buttons">
+              <button id="btn-apply-filters" class="btn btn-primary btn-sm">Filtrar</button>
+              <button id="btn-clear-filters" class="btn btn-outline-sm">Limpar</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- SEÇÃO: LISTA DE TICKETS -->
+        <div class="tickets-section">
+          <div id="tickets-loading" class="loading-spinner hide">
+            <div class="spinner"></div>
+            <span>Carregando tickets...</span>
+          </div>
+
+          <div id="tickets-empty" class="empty-state hide">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            <h3>Nenhum ticket encontrado</h3>
+            <p class="text-muted">Nenhum chamado corresponde aos filtros aplicados ou ainda não há chamados registrados.</p>
+          </div>
+
+          <div id="tickets-list" class="tickets-grid">
+            <!-- Renderizado dinamicamente via JS -->
+          </div>
+        </div>
+
+      </div>
+    </main>
+  </div>
+
+  <!-- MODAL: NOVO TICKET -->
+  <div id="modal-new-ticket" class="modal-backdrop hide">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>Criar Novo Ticket de Suporte</h3>
+        <button id="btn-close-modal-ticket" class="btn-close">&times;</button>
+      </div>
+
+      <form id="form-new-ticket">
+        <div class="form-group">
+          <label for="ticket-titulo">Título da Solicitação</label>
+          <input type="text" id="ticket-titulo" required placeholder="Ex: Impressora não responde ou Erro ao abrir sistema X" class="form-control">
+        </div>
+
+        <div class="form-group">
+          <label for="ticket-tipo">Tipo de Categoria</label>
+          <select id="ticket-tipo" required class="form-control">
+            <option value="hardware">Hardware (Equipamentos, Peças, Monitores)</option>
+            <option value="software">Software (Sistemas, Login, Erro em Aplicativo)</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="ticket-descricao">Descrição Detalhada do Problema</label>
+          <textarea id="ticket-descricao" rows="4" required placeholder="Descreva em detalhes o que está acontecendo..." class="form-control"></textarea>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" id="btn-cancel-ticket" class="btn btn-outline">Cancelar</button>
+          <button type="submit" id="btn-save-ticket" class="btn btn-primary">Abrir Chamado</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: DETALHES DO TICKET & AUDITORIA / COMENTÁRIOS -->
+  <div id="modal-ticket-details" class="modal-backdrop hide">
+    <div class="modal-card modal-large">
+      <div class="modal-header">
+        <div>
+          <span id="detail-ticket-badge" class="badge">Status</span>
+          <h3 id="detail-ticket-titulo">Título do Ticket</h3>
+        </div>
+        <button id="btn-close-modal-details" class="btn-close">&times;</button>
+      </div>
+
+      <div class="modal-body-scroll">
+        <!-- DETALHES E META DADOS -->
+        <div class="ticket-meta-box">
+          <div class="meta-item">
+            <span class="meta-label">Solicitante:</span>
+            <span id="detail-ticket-solicitante" class="meta-value">-</span>
+          </div>
+          <div class="meta-item">
+            <span class="meta-label">Tipo:</span>
+            <span id="detail-ticket-tipo" class="meta-value">-</span>
+          </div>
+          <div class="meta-item">
+            <span class="meta-label">Criado em:</span>
+            <span id="detail-ticket-data" class="meta-value">-</span>
+          </div>
+          <div class="meta-item">
+            <span class="meta-label">Responsável:</span>
+            <span id="detail-ticket-responsavel" class="meta-value">-</span>
+          </div>
+        </div>
+
+        <!-- PAINEL DE CONTROLE ADMIN DE STATUS -->
+        <div id="admin-status-control" class="admin-status-box admin-only hide">
+          <h4>Alterar Status do Ticket (Somente Administrador)</h4>
+          <div class="status-action-row">
+            <button class="btn btn-sm btn-status-change" data-status="aberto">Marcar Aberto</button>
+            <button class="btn btn-sm btn-status-change" data-status="em_andamento">Marcar Em Andamento</button>
+            <button class="btn btn-sm btn-status-change" data-status="fechado">Marcar Fechado</button>
+          </div>
+        </div>
+
+        <!-- DESCRIÇÃO -->
+        <div class="ticket-section">
+          <h4>Descrição</h4>
+          <div id="detail-ticket-descricao" class="description-box"></div>
+        </div>
+
+        <!-- HISTÓRICO DE AUDITORIA (RF03.7) -->
+        <div class="ticket-section">
+          <h4>Histórico de Alterações de Status (Auditoria)</h4>
+          <div id="detail-ticket-historico" class="timeline-list">
+            <!-- Timeline renderizada via JS -->
+          </div>
+        </div>
+
+        <!-- COMENTÁRIOS E INTERAÇÕES (RF03.6) -->
+        <div class="ticket-section">
+          <h4>Comentários e Informações Adicionais</h4>
+          
+          <div id="detail-ticket-comentarios" class="comments-list">
+            <!-- Lista de comentários -->
+          </div>
+
+          <form id="form-add-comment" class="comment-form">
+            <div class="form-group">
+              <textarea id="comment-text" rows="3" required placeholder="Digite uma atualização ou comentário..." class="form-control"></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary btn-sm">Enviar Comentário</button>
+          </form>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: GESTÃO DE USUÁRIOS (ADMIN ONLY) -->
+  <div id="modal-users-management" class="modal-backdrop hide">
+    <div class="modal-card modal-large">
+      <div class="modal-header">
+        <h3>Gestão de Usuários do Sistema</h3>
+        <button id="btn-close-modal-users" class="btn-close">&times;</button>
+      </div>
+
+      <div class="modal-body-scroll">
+        <!-- FORMULARIO NOVO USUARIO -->
+        <div class="admin-user-create-box">
+          <h4 id="user-form-title">Cadastrar Novo Usuário</h4>
+          <form id="form-admin-user" class="form-grid-3">
+            <input type="hidden" id="user-edit-id" value="">
+            <div class="form-group">
+              <label for="user-nome">Nome</label>
+              <input type="text" id="user-nome" required class="form-control" placeholder="Nome do usuário">
+            </div>
+
+            <div class="form-group">
+              <label for="user-email">E-mail</label>
+              <input type="email" id="user-email" required class="form-control" placeholder="usuario@email.com">
+            </div>
+
+            <div class="form-group">
+              <label for="user-senha">Senha <small id="senha-help" class="text-muted hide">(deixe em branco p/ manter)</small></label>
+              <input type="password" id="user-senha" class="form-control" placeholder="Mínimo 6 caracteres">
+            </div>
+
+            <div class="form-group">
+              <label for="user-role">Nível de Acesso</label>
+              <select id="user-role" class="form-control">
+                <option value="user">Usuário Comum</option>
+                <option value="admin">Administrador</option>
+              </select>
+            </div>
+
+            <div class="form-group form-group-btn">
+              <button type="submit" id="btn-save-user" class="btn btn-primary btn-block">Salvar Usuário</button>
+              <button type="button" id="btn-cancel-edit-user" class="btn btn-outline btn-block hide">Cancelar Edição</button>
+            </div>
+          </form>
+        </div>
+
+        <!-- TABELA DE USUÁRIOS -->
+        <div class="table-responsive">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Nome</th>
+                <th>E-mail</th>
+                <th>Perfil</th>
+                <th>Status</th>
+                <th>Ações</th>
+              </tr>
+            </thead>
+            <tbody id="users-table-body">
+              <!-- Renderizado via JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="/js/app.js"></script>
+</body>
+</html>
