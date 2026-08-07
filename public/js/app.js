@@ -240,6 +240,8 @@ async function loadTickets() {
     const tickets = await fetchAPI(`/tickets?${params.toString()}`);
     ticketsLoading.classList.add('hide');
 
+    updateDashboardStats(tickets);
+
     if (!tickets || tickets.length === 0) {
       ticketsEmpty.classList.remove('hide');
       return;
@@ -252,6 +254,25 @@ async function loadTickets() {
     ticketsLoading.classList.add('hide');
     showToast('Erro ao carregar tickets: ' + err.message, 'error');
   }
+}
+
+function updateDashboardStats(tickets) {
+  const statTotal = document.getElementById('stat-total');
+  const statAbertos = document.getElementById('stat-abertos');
+  const statAndamento = document.getElementById('stat-andamento');
+  const statFechados = document.getElementById('stat-fechados');
+
+  if (!statTotal) return;
+
+  const total = tickets ? tickets.length : 0;
+  const abertos = tickets ? tickets.filter(t => t.status === 'aberto').length : 0;
+  const andamento = tickets ? tickets.filter(t => t.status === 'em_andamento').length : 0;
+  const fechados = tickets ? tickets.filter(t => t.status === 'fechado').length : 0;
+
+  statTotal.textContent = total;
+  statAbertos.textContent = abertos;
+  statAndamento.textContent = andamento;
+  statFechados.textContent = fechados;
 }
 
 function createTicketCard(ticket) {
